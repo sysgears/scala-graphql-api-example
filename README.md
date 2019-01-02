@@ -1,1 +1,1 @@
-Build status https://travis-ci.org/PLGrudina/GraphQL_API_example.svg?branch=master 
+Build status [![Build Status](https://travis-ci.org/PLGrudina/GraphQL_API_example.svg?branch=master)](https://travis-ci.org/PLGrudina/GraphQL_API_example) 
