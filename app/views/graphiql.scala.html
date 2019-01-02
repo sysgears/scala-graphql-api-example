@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="sangria,scala,graphql,playframework,graphiql" />
+
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/graphql.ico")">
+
+    <title>GraphiQL</title>
+
+    <link href="//cdn.jsdelivr.net/graphiql/0.7.8/graphiql.css" rel="stylesheet" />
+
+    <script src="//cdn.jsdelivr.net/fetch/0.9.0/fetch.min.js"></script>
+    <script src="//cdn.jsdelivr.net/react/0.14.2/react.min.js"></script>
+    <script src="//cdn.jsdelivr.net/react/0.14.2/react-dom.min.js"></script>
+    <script src="//cdn.jsdelivr.net/graphiql/0.7.8/graphiql.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <style>
+      body {
+        height: 100%;
+        margin: 0;
+        width: 100%;
+        overflow: hidden;
+      }
+      #graphiql {
+        height: 100vh;
+      }
+    </style>
+
+    <script src="@routes.Assets.versioned("javascripts/app-graphiql.js")"></script>
+  </head>
+
+  <body>
+    <div id="graphiql">Loading...</div>
+
+    <script>
+      renderGraphiql(document.getElementById('graphiql'))
+    </script>
+  </body>
+</html>

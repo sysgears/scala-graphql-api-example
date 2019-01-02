@@ -1,0 +1,1 @@
+Build status https://travis-ci.org/PLGrudina/GraphQL_API_example.svg?branch=master 
