@@ -1,0 +1,11 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+
+GET         /               controllers.AppController.graphiql
+
+GET         /graphql        controllers.AppController.graphql(value: String, variable: Option[String] = None, operation: Option[String] = None)
+
+POST        /graphql        controllers.AppController.graphqlBody
