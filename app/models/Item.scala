@@ -13,17 +13,19 @@ object Item {
 
     case class ItemInput(description: String)
 
+    case class ItemsPayload(items: List[Item])
+
     implicit val itemInputUnmarshaller: FromInput[ItemInput] = inputUnmarshaller {
       input =>
         ItemInput(
-          description = input.get("description").asInstanceOf[String]
+          description = input("description").asInstanceOf[String]
         )
     }
 
     object Types {
 
       implicit val Item: ObjectType[GraphQLContext, Item] = deriveObjectType[GraphQLContext, Item](ObjectTypeName("Item"))
-      implicit val ItemsPayload: ObjectType[Unit, List[Item]] = deriveObjectType(ObjectTypeName("ItemsPayload"))
+      implicit val ItemsPayload: ObjectType[Unit, ItemsPayload] = deriveObjectType(ObjectTypeName("ItemsPayload"))
 
       val ItemInput: InputObjectType[ItemInput] = InputObjectType[ItemInput](
         name = "ItemInput",
