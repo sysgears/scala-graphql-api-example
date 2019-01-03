@@ -31,7 +31,7 @@ class AppController @Inject()(cc: ControllerComponents,
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  def graphiql = if (env.isDev || env.isTest) Action(Ok(views.html.graphiql())) else Action(NotFound)
+  def graphiql = Action(Ok(views.html.graphiql()))
 
   def graphql(value: String, variable: Option[String], operation: Option[String]) = Action.async {
     request =>
