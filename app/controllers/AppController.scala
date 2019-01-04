@@ -31,15 +31,32 @@ class AppController @Inject()(cc: ControllerComponents,
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
+  /**
+    * An action that renders an page with an in-browser IDE for exploring GraphQL.
+    * The configuration in the 'routes' file means that
+    * this method will be called when the application receives a
+    * 'GET' request with a path of '/'.
+    */
   def graphiql = Action(Ok(views.html.graphiql()))
 
-  def graphql(value: String, variable: Option[String], operation: Option[String]) = Action.async {
+  /**
+    * The main endpoint that works with incoming query (accepts, executes and returns the result).
+    *
+    * @param value    graphql body of request
+    * @param variable incoming variables passed in the request
+    * @param operation name of the operation (queries or mutations)
+    * @return an action is essentially a (Request[A] => Result) function that handles a request and generates a result to be sent to the client.
+    */
+  def graphql(value: String, variable: Option[String], operation: Option[String]): Action[AnyContent] = Action.async {
     request =>
       executeQuery(value, variable.map(parseVariables), operation) {
         graphQLContextFactory.createContextForRequest()
       }
   }
 
+  /**
+    * The function analyzes and executes incoming graphql query, and returns execution result.
+    */
   def executeQuery(query: String, variables: Option[JsObject] = None, operation: Option[String] = None)
                   (graphQLContext: GraphQLContext): Future[Result] = QueryParser.parse(query) match {
     case Success(queryAst: Document) => Executor.execute(
@@ -62,7 +79,10 @@ class AppController @Inject()(cc: ControllerComponents,
     case Failure(ex) => Future.successful(Ok(s"${ex.getMessage}"))
   }
 
-  def graphqlBody = Action.async(parse.json) {
+  /**
+    * Parse graphql body of incoming request.
+    */
+  def graphqlBody: Action[JsValue] = Action.async(parse.json) {
     implicit request: Request[JsValue] =>
 
       val extract: JsValue => (String, Option[String], Option[JsObject]) = query => (
@@ -96,6 +116,12 @@ class AppController @Inject()(cc: ControllerComponents,
       }
   }
 
+  /**
+    * Helper function for parsing variables of incoming query.
+    *
+    * @param variables variables from incoming query
+    * @return JsObject with variables
+    */
   def parseVariables(variables: String): JsObject = if (variables.trim.isEmpty || variables.trim == "null") Json.obj()
   else Json.parse(variables).as[JsObject]
 

@@ -6,11 +6,14 @@ import models.Item
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * Implementation that's based on mutable synchronized collection.
+  */
 class ItemRepositoryImpl @Inject()(implicit val executionContext: ExecutionContext) extends ItemRepository {
 
   val itemCollection: mutable.ArrayBuffer[Item] = mutable.ArrayBuffer.empty[Item]
 
-
+  /** @inheritdoc */
   override def create(item: Item): Future[Item] = Future.successful {
     synchronized {
       val newItem = item.copy(
@@ -24,18 +27,21 @@ class ItemRepositoryImpl @Inject()(implicit val executionContext: ExecutionConte
     }
   }
 
+  /** @inheritdoc */
   override def find(id: Long): Future[Option[Item]] = Future.successful {
     synchronized {
       itemCollection.find(_.id == id)
     }
   }
 
+  /** @inheritdoc */
   override def findAll(): Future[List[Item]] = Future.successful {
     synchronized {
       itemCollection.toList
     }
   }
 
+  /** @inheritdoc */
   override def update(item: Item): Future[Item] = synchronized {
     find(item.id).flatMap {
       case Some(foundItem) =>
@@ -49,6 +55,7 @@ class ItemRepositoryImpl @Inject()(implicit val executionContext: ExecutionConte
     }
   }
 
+  /** @inheritdoc */
   override def delete(id: Long): Future[Int] = Future.successful {
     synchronized {
       val initialCollectionLength = itemCollection.length
