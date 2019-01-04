@@ -1,6 +1,6 @@
 package graphql
 
-import models.Item
+import models.ItemSchema
 import sangria.schema.{ObjectType, Schema, fields}
 
 /**
@@ -14,14 +14,14 @@ object GraphQL {
   val Schema: Schema[GraphQLContext, Unit] = sangria.schema.Schema(
     query = ObjectType("Query",
       fields(
-        Item.GraphQL.Queries: _*
+        ItemSchema.Queries: _*
       )
     ),
 
     mutation = Some(
       ObjectType("Mutation",
         fields(
-          Item.GraphQL.Mutations: _*
+          ItemSchema.Mutations: _*
         )
       )
     )

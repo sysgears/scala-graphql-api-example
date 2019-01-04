@@ -40,43 +40,6 @@ class AppController @Inject()(cc: ControllerComponents,
       }
   }
 
-  def graphqlBody = Action.async(parse.json) {
-    implicit request: Request[JsValue] =>
-
-      val extract: JsValue => (String, Option[String], Option[JsObject]) = query => (
-        (query \ "query").as[String],
-        (query \ "operationName").asOpt[String],
-        (query \ "variables").toOption.flatMap {
-          case JsString(vars) => Some(parseVariables(vars))
-          case obj: JsObject => Some(obj)
-          case _ ⇒ None
-        }
-      )
-
-      val maybeQuery: Try[(String, Option[String], Option[JsObject])] = Try {
-        request.body match {
-          case arrayBody@JsArray(_) => extract(arrayBody.value(0))
-          case objectBody@JsObject(_) => extract(objectBody)
-          case otherType =>
-            throw new Error {
-              s"/graphql endpint does not support request body of type [${otherType.getClass.getSimpleName}]"
-            }
-        }
-      }
-
-      maybeQuery match {
-        case Success((query, operationName, variables)) => executeQuery(query, variables, operationName) {
-          graphQLContextFactory.createContextForRequest()
-        }
-        case Failure(error) => Future.successful {
-          BadRequest(error.getMessage)
-        }
-      }
-  }
-
-  def parseVariables(variables: String): JsObject = if (variables.trim.isEmpty || variables.trim == "null") Json.obj()
-  else Json.parse(variables).as[JsObject]
-
   def executeQuery(query: String, variables: Option[JsObject] = None, operation: Option[String] = None)
                   (graphQLContext: GraphQLContext): Future[Result] = QueryParser.parse(query) match {
     case Success(queryAst: Document) => Executor.execute(
@@ -98,6 +61,43 @@ class AppController @Inject()(cc: ControllerComponents,
     }
     case Failure(ex) => Future.successful(Ok(s"${ex.getMessage}"))
   }
+
+  def graphqlBody = Action.async(parse.json) {
+    implicit request: Request[JsValue] =>
+
+      val extract: JsValue => (String, Option[String], Option[JsObject]) = query => (
+        (query \ "query").as[String],
+        (query \ "operationName").asOpt[String],
+        (query \ "variables").toOption.flatMap {
+          case JsString(vars) => Some(parseVariables(vars))
+          case obj: JsObject => Some(obj)
+          case _ ⇒ None
+        }
+      )
+
+      val maybeQuery: Try[(String, Option[String], Option[JsObject])] = Try {
+        request.body match {
+          case arrayBody@JsArray(_) => extract(arrayBody.value(0))
+          case objectBody@JsObject(_) => extract(objectBody)
+          case otherType =>
+            throw new Error {
+              s"/graphql endpoint does not support request body of type [${otherType.getClass.getSimpleName}]"
+            }
+        }
+      }
+
+      maybeQuery match {
+        case Success((query, operationName, variables)) => executeQuery(query, variables, operationName) {
+          graphQLContextFactory.createContextForRequest()
+        }
+        case Failure(error) => Future.successful {
+          BadRequest(error.getMessage)
+        }
+      }
+  }
+
+  def parseVariables(variables: String): JsObject = if (variables.trim.isEmpty || variables.trim == "null") Json.obj()
+  else Json.parse(variables).as[JsObject]
 
   lazy val exceptionHandler = ExceptionHandler {
     case (_, error@TooComplexQueryError) ⇒ HandledException(error.getMessage)
