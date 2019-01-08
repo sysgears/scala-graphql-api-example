@@ -6,8 +6,6 @@
 
 GET         /                    controllers.AppController.graphiql
 
-GET         /graphql             controllers.AppController.graphql(value: String, variable: Option[String] = None, operation: Option[String] = None)
-
 POST        /graphql             controllers.AppController.graphqlBody
 
 GET         /assets/*file        controllers.Assets.versioned(path="/public", file: Asset)

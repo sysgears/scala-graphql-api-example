@@ -1,7 +1,5 @@
 package controllers
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import com.google.inject.{Inject, Singleton}
 import graphql.{GraphQL, GraphQLContext, GraphQLContextFactory}
 import play.api.Configuration
@@ -27,10 +25,6 @@ class AppController @Inject()(cc: ControllerComponents,
                               config: Configuration,
                               implicit val executionContext: ExecutionContext) extends AbstractController(cc) {
 
-  implicit val system: ActorSystem = ActorSystem()
-
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
-
   /**
     * An action that renders an page with an in-browser IDE for exploring GraphQL.
     * The configuration in the 'routes' file means that
@@ -38,46 +32,6 @@ class AppController @Inject()(cc: ControllerComponents,
     * 'GET' request with a path of '/'.
     */
   def graphiql = Action(Ok(views.html.graphiql()))
-
-  /**
-    * The main endpoint that works with incoming query (accepts, executes and returns the result).
-    *
-    * @param value    graphql body of request
-    * @param variable incoming variables passed in the request
-    * @param operation name of the operation (queries or mutations)
-    * @return an action is essentially a (Request[A] => Result) function that handles a request and generates a result to be sent to the client.
-    */
-  def graphql(value: String, variable: Option[String], operation: Option[String]): Action[AnyContent] = Action.async {
-    request =>
-      executeQuery(value, variable.map(parseVariables), operation) {
-        graphQLContextFactory.createContextForRequest()
-      }
-  }
-
-  /**
-    * The function analyzes and executes incoming graphql query, and returns execution result.
-    */
-  def executeQuery(query: String, variables: Option[JsObject] = None, operation: Option[String] = None)
-                  (graphQLContext: GraphQLContext): Future[Result] = QueryParser.parse(query) match {
-    case Success(queryAst: Document) => Executor.execute(
-      schema = GraphQL.Schema,
-      queryAst = queryAst,
-      userContext = graphQLContext,
-      variables = variables.getOrElse(Json.obj()),
-      exceptionHandler = exceptionHandler,
-      queryReducers = List(
-        QueryReducer.rejectMaxDepth[GraphQLContext](GraphQL.maxQueryDepth),
-        QueryReducer.rejectComplexQueries[GraphQLContext](GraphQL.maxQueryComplexity, (_, _) => TooComplexQueryError)
-      )
-    ).map(Ok(_)).flatMap {
-      result =>
-        Future(result)
-    }.recover {
-      case error: QueryAnalysisError ⇒ BadRequest(error.resolveError)
-      case error: ErrorWithResolver ⇒ InternalServerError(error.resolveError)
-    }
-    case Failure(ex) => Future.successful(Ok(s"${ex.getMessage}"))
-  }
 
   /**
     * Parse graphql body of incoming request.
@@ -114,6 +68,31 @@ class AppController @Inject()(cc: ControllerComponents,
           BadRequest(error.getMessage)
         }
       }
+  }
+
+  /**
+    * The function analyzes and executes incoming graphql query, and returns execution result.
+    */
+  def executeQuery(query: String, variables: Option[JsObject] = None, operation: Option[String] = None)
+                  (graphQLContext: GraphQLContext): Future[Result] = QueryParser.parse(query) match {
+    case Success(queryAst: Document) => Executor.execute(
+      schema = GraphQL.Schema,
+      queryAst = queryAst,
+      userContext = graphQLContext,
+      variables = variables.getOrElse(Json.obj()),
+      exceptionHandler = exceptionHandler,
+      queryReducers = List(
+        QueryReducer.rejectMaxDepth[GraphQLContext](GraphQL.maxQueryDepth),
+        QueryReducer.rejectComplexQueries[GraphQLContext](GraphQL.maxQueryComplexity, (_, _) => TooComplexQueryError)
+      )
+    ).map(Ok(_)).flatMap {
+      result =>
+        Future(result)
+    }.recover {
+      case error: QueryAnalysisError ⇒ BadRequest(error.resolveError)
+      case error: ErrorWithResolver ⇒ InternalServerError(error.resolveError)
+    }
+    case Failure(ex) => Future.successful(Ok(s"${ex.getMessage}"))
   }
 
   /**
