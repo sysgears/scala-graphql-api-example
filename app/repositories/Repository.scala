@@ -8,41 +8,41 @@ import scala.concurrent.Future
 trait Repository[T] {
 
   /**
-    * Creates Item instance.
+    * Creates instance.
     *
-    * @param item a Item instance
-    * @return created Item instance
+    * @param item a new instance
+    * @return created instance
     */
   def create(item: T): Future[T]
 
   /**
-    * Returns Item by id.
+    * Returns instance by id.
     *
-    * @param id an id of the Item
-    * @return found Item instance
+    * @param id an id of the instance
+    * @return found instance
     */
   def find(id: Long): Future[Option[T]]
 
   /**
-    * Returns a list of items.
+    * Returns a list of instances.
     *
-    * @return list of items
+    * @return list of instance
     */
   def findAll(): Future[List[T]]
 
   /**
-    * Updates existing Item.
+    * Updates existing instance.
     *
-    * @param item new Item instance
-    * @return updated Item instance
+    * @param item new instance
+    * @return updated instance
     */
   def update(item: T): Future[T]
 
   /**
-    * Delete existing Item instance by id.
+    * Delete existing instance by id.
     *
-    * @param id an id of the Item
-    * @return a number of deleted Item
+    * @param id an id of some instance
+    * @return a number of deleted instances
     */
   def delete(id: Long): Future[Int]
 }
