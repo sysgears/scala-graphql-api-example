@@ -29,16 +29,12 @@ class ItemRepository @Inject()(implicit val executionContext: ExecutionContext) 
 
   /** @inheritdoc */
   override def find(id: Long): Future[Option[Item]] = Future.successful {
-    synchronized {
       itemCollection.find(_.id == id)
-    }
   }
 
   /** @inheritdoc */
   override def findAll(): Future[List[Item]] = Future.successful {
-    synchronized {
       itemCollection.toList
-    }
   }
 
   /** @inheritdoc */
