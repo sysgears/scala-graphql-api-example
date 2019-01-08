@@ -1,12 +1,13 @@
 package graphql
 
+import com.google.inject.Inject
 import models.ItemSchema
-import sangria.schema.{ObjectType, Schema, fields}
+import sangria.schema.{ObjectType, fields}
 
 /**
   * Base component for the GraphQL schema.
   */
-object GraphQL {
+class GraphQL @Inject()(itemSchema: ItemSchema) {
 
   /**
     * Enables to limit the maximum depth of incoming queries.
@@ -21,17 +22,17 @@ object GraphQL {
   /**
     * Since the schema are shared among ALL models, here we can add queries, mutations, etc. for each model.
     */
-  val Schema: Schema[GraphQLContext, Unit] = sangria.schema.Schema(
+  val Schema = sangria.schema.Schema(
     query = ObjectType("Query",
       fields(
-        ItemSchema.Queries: _*
+        itemSchema.Queries: _*
       )
     ),
 
     mutation = Some(
       ObjectType("Mutation",
         fields(
-          ItemSchema.Mutations: _*
+          itemSchema.Mutations: _*
         )
       )
     )

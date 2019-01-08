@@ -1,15 +1,16 @@
 package models
 
-import graphql.GraphQLContext
+import com.google.inject.Inject
+import resolvers.ItemResolver
 import sangria.macros.derive.{ObjectTypeName, deriveObjectType}
 import sangria.schema._
 
 /**
-  * The object contains the definitions of all query and mutations
+  * Contains the definitions of all query and mutations
   * that work with the entity 'Item'. Also it is a construction element
   * for the build graphql schema of the entire application.
   */
-object ItemSchema {
+class ItemSchema @Inject()(itemResolver: ItemResolver) {
 
   /**
     * Used to convert an Item object to a Sangria graphql object.
@@ -20,13 +21,13 @@ object ItemSchema {
   /**
     * Queries to work with the entity of Item.
     */
-  val Queries: List[Field[GraphQLContext, Unit]] = List(
+  val Queries: List[Field[Unit, Unit]] = List(
     Field(
       name = "items",
       fieldType = ListType(Item),
       resolve = {
         sangriaContext =>
-          sangriaContext.ctx.itemResolver.items
+          itemResolver.items
       }
     ),
     Field(
@@ -37,7 +38,7 @@ object ItemSchema {
       ),
       resolve = {
         sangriaContext =>
-          sangriaContext.ctx.itemResolver.findItem(sangriaContext.args.arg[Long]("id"))
+          itemResolver.findItem(sangriaContext.args.arg[Long]("id"))
       }
     )
   )
@@ -45,7 +46,7 @@ object ItemSchema {
   /**
     * Mutations to work with the entity of Item.
     */
-  val Mutations: List[Field[GraphQLContext, Unit]] = List(
+  val Mutations: List[Field[Unit, Unit]] = List(
     Field(
       name = "addItem",
       fieldType = Item,
@@ -54,7 +55,7 @@ object ItemSchema {
       ),
       resolve = {
         sangriaContext =>
-          sangriaContext.ctx.itemResolver.addItem(
+          itemResolver.addItem(
             sangriaContext.args.arg[String]("description")
           )
       }

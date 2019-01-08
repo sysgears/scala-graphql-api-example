@@ -1,7 +1,7 @@
 package controllers
 
 import com.google.inject.{Inject, Singleton}
-import graphql.{GraphQL, GraphQLContext, GraphQLContextFactory}
+import graphql.GraphQL
 import play.api.Configuration
 import play.api.libs.json._
 import play.api.mvc._
@@ -19,8 +19,8 @@ import scala.util.{Failure, Success, Try}
   * application's home page.
   */
 @Singleton
-class AppController @Inject()(cc: ControllerComponents,
-                              graphQLContextFactory: GraphQLContextFactory,
+class AppController @Inject()(graphQL: GraphQL,
+                              cc: ControllerComponents,
                               env: play.Environment,
                               config: Configuration,
                               implicit val executionContext: ExecutionContext) extends AbstractController(cc) {
@@ -45,7 +45,7 @@ class AppController @Inject()(cc: ControllerComponents,
         (query \ "variables").toOption.flatMap {
           case JsString(vars) => Some(parseVariables(vars))
           case obj: JsObject => Some(obj)
-          case _ ⇒ None
+          case _ => None
         }
       )
 
@@ -61,9 +61,7 @@ class AppController @Inject()(cc: ControllerComponents,
       }
 
       maybeQuery match {
-        case Success((query, operationName, variables)) => executeQuery(query, variables, operationName) {
-          graphQLContextFactory.createContextForRequest()
-        }
+        case Success((query, operationName, variables)) => executeQuery(query, variables, operationName)
         case Failure(error) => Future.successful {
           BadRequest(error.getMessage)
         }
@@ -73,24 +71,23 @@ class AppController @Inject()(cc: ControllerComponents,
   /**
     * The function analyzes and executes incoming graphql query, and returns execution result.
     */
-  def executeQuery(query: String, variables: Option[JsObject] = None, operation: Option[String] = None)
-                  (graphQLContext: GraphQLContext): Future[Result] = QueryParser.parse(query) match {
+  def executeQuery(query: String, variables: Option[JsObject] = None, operation: Option[String] = None): Future[Result] = QueryParser.parse(query) match {
     case Success(queryAst: Document) => Executor.execute(
-      schema = GraphQL.Schema,
+      schema = graphQL.Schema,
       queryAst = queryAst,
-      userContext = graphQLContext,
+      userContext = (),
       variables = variables.getOrElse(Json.obj()),
       exceptionHandler = exceptionHandler,
       queryReducers = List(
-        QueryReducer.rejectMaxDepth[GraphQLContext](GraphQL.maxQueryDepth),
-        QueryReducer.rejectComplexQueries[GraphQLContext](GraphQL.maxQueryComplexity, (_, _) => TooComplexQueryError)
+        QueryReducer.rejectMaxDepth[Unit](graphQL.maxQueryDepth),
+        QueryReducer.rejectComplexQueries[Unit](graphQL.maxQueryComplexity, (_, _) => TooComplexQueryError)
       )
     ).map(Ok(_)).flatMap {
       result =>
         Future(result)
     }.recover {
-      case error: QueryAnalysisError ⇒ BadRequest(error.resolveError)
-      case error: ErrorWithResolver ⇒ InternalServerError(error.resolveError)
+      case error: QueryAnalysisError => BadRequest(error.resolveError)
+      case error: ErrorWithResolver => InternalServerError(error.resolveError)
     }
     case Failure(ex) => Future.successful(Ok(s"${ex.getMessage}"))
   }
@@ -105,8 +102,8 @@ class AppController @Inject()(cc: ControllerComponents,
   else Json.parse(variables).as[JsObject]
 
   lazy val exceptionHandler = ExceptionHandler {
-    case (_, error@TooComplexQueryError) ⇒ HandledException(error.getMessage)
-    case (_, error@MaxQueryDepthReachedError(_)) ⇒ HandledException(error.getMessage)
+    case (_, error@TooComplexQueryError) => HandledException(error.getMessage)
+    case (_, error@MaxQueryDepthReachedError(_)) => HandledException(error.getMessage)
   }
 
   case object TooComplexQueryError extends Exception("Query is too expensive.")
