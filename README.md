@@ -1,4 +1,4 @@
-**Build status** [![Build Status](https://travis-ci.org/PLGrudina/GraphQL_API_example.svg?branch=master)](https://travis-ci.org/PLGrudina/GraphQL_API_example) 
+[![Build Status](https://travis-ci.org/PLGrudina/GraphQL_API_example.svg?branch=master)](https://travis-ci.org/PLGrudina/GraphQL_API_example) 
 
 This is a demo project showing how to build a GraphQL API on the basis of a Play2 framework using Scala and Sangria.
 
@@ -7,6 +7,8 @@ This is a demo project showing how to build a GraphQL API on the basis of a Play
 Run an application:
 
 `sbt run`
+
+After launch, the application will be available at `localhost:9000`
 
 **Sources**
 
