@@ -15,8 +15,11 @@ import scala.util.{Failure, Success, Try}
 
 
 /**
-  * This controller creates an `Action` to handle HTTP requests to the
-  * application's home page.
+  * Creates an `Action` to handle HTTP requests.
+  *
+  * @param graphQL          an object containing a graphql schema of the entire application
+  * @param cc               base controller components dependencies that most controllers rely on.
+  * @param executionContext execute program logic asynchronously, typically but not necessarily on a thread pool
   */
 @Singleton
 class AppController @Inject()(graphQL: GraphQL,
@@ -26,15 +29,14 @@ class AppController @Inject()(graphQL: GraphQL,
                               implicit val executionContext: ExecutionContext) extends AbstractController(cc) {
 
   /**
-    * An action that renders an page with an in-browser IDE for exploring GraphQL.
-    * The configuration in the 'routes' file means that
-    * this method will be called when the application receives a
-    * 'GET' request with a path of '/'.
+    * Renders an page with an in-browser IDE for exploring GraphQL.
     */
   def graphiql = Action(Ok(views.html.graphiql()))
 
   /**
-    * Parse graphql body of incoming request.
+    * Parses graphql body of incoming request.
+    *
+    * @return an 'Action' to handles a request and generates a result to be sent to the client
     */
   def graphqlBody: Action[JsValue] = Action.async(parse.json) {
     implicit request: Request[JsValue] =>
@@ -69,7 +71,12 @@ class AppController @Inject()(graphQL: GraphQL,
   }
 
   /**
-    * The function analyzes and executes incoming graphql query, and returns execution result.
+    * Analyzes and executes incoming graphql query, and returns execution result.
+    *
+    * @param query     graphql body of request
+    * @param variables incoming variables passed in the request
+    * @param operation name of the operation (queries or mutations)
+    * @return simple result, which defines the response header and a body ready to send to the client
     */
   def executeQuery(query: String, variables: Option[JsObject] = None, operation: Option[String] = None): Future[Result] = QueryParser.parse(query) match {
     case Success(queryAst: Document) => Executor.execute(
@@ -93,7 +100,7 @@ class AppController @Inject()(graphQL: GraphQL,
   }
 
   /**
-    * Helper function for parsing variables of incoming query.
+    * Parses variables of incoming query.
     *
     * @param variables variables from incoming query
     * @return JsObject with variables

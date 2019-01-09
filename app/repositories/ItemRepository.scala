@@ -8,6 +8,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Implementation that's based on mutable synchronized collection.
+  *
+  * @param executionContext execute program logic asynchronously, typically but not necessarily on a thread pool
   */
 class ItemRepository @Inject()(implicit val executionContext: ExecutionContext) extends Repository[Item] {
 

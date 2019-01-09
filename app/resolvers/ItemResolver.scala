@@ -10,6 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * A resolver class that contains all resolver methods for the Item model.
   *
   * @param itemRepository an repository which provides basic operations for Item entity
+  * @param executionContext execute program logic asynchronously, typically but not necessarily on a thread pool
   */
 class ItemResolver @Inject()(itemRepository: ItemRepository,
                              implicit val executionContext: ExecutionContext) {
