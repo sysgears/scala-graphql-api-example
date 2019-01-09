@@ -44,5 +44,5 @@ trait Repository[T] {
     * @param id an id of some instance
     * @return true/false result of deleting
     */
-  def delete(id: Long): Future[Int]
+  def delete(id: Long): Future[Boolean]
 }

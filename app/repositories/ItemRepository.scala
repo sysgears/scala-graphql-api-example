@@ -54,17 +54,14 @@ class ItemRepository @Inject()(implicit val executionContext: ExecutionContext) 
   }
 
   /** @inheritdoc */
-  override def delete(id: Long): Future[Int] = Future.successful {
+  override def delete(id: Long): Future[Boolean] = Future.successful {
     synchronized {
-      val initialCollectionLength = itemCollection.length
-
-      val resultingLength = itemCollection.indexWhere(_.id == id) match {
-        case -1 => initialCollectionLength
+      itemCollection.indexWhere(_.id == id) match {
+        case -1 => false
         case itemIndex =>
           itemCollection.remove(itemIndex)
-          initialCollectionLength - 1
+          true
       }
-      initialCollectionLength - resultingLength
     }
   }
 }
