@@ -80,19 +80,12 @@ class AppController @Inject()(graphQL: GraphQL,
       schema = graphQL.Schema,
       queryAst = queryAst,
       variables = variables.getOrElse(Json.obj()),
-      exceptionHandler = exceptionHandler,
-      queryReducers = List(
-        QueryReducer.rejectMaxDepth[Unit](graphQL.maxQueryDepth),
-        QueryReducer.rejectComplexQueries[Unit](graphQL.maxQueryComplexity, (_, _) => TooComplexQueryError)
-      )
-    ).map(Ok(_)).flatMap {
-      result =>
-        Future(result)
-    }.recover {
-      case error: QueryAnalysisError => BadRequest(error.resolveError)
-      case error: ErrorWithResolver => InternalServerError(error.resolveError)
-    }
-    case Failure(ex) => Future.successful(Ok(s"${ex.getMessage}"))
+    ).map(Ok(_))
+      .recover {
+        case error: QueryAnalysisError => BadRequest(error.resolveError)
+        case error: ErrorWithResolver => InternalServerError(error.resolveError)
+      }
+    case Failure(ex) => Future(BadRequest(s"${ex.getMessage}"))
   }
 
   /**
