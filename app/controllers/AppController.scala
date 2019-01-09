@@ -2,7 +2,6 @@ package controllers
 
 import com.google.inject.{Inject, Singleton}
 import graphql.GraphQL
-import play.api.Configuration
 import play.api.libs.json._
 import play.api.mvc._
 import sangria.ast.Document
@@ -24,8 +23,6 @@ import scala.util.{Failure, Success, Try}
 @Singleton
 class AppController @Inject()(graphQL: GraphQL,
                               cc: ControllerComponents,
-                              env: play.Environment,
-                              config: Configuration,
                               implicit val executionContext: ExecutionContext) extends AbstractController(cc) {
 
   /**
@@ -82,7 +79,6 @@ class AppController @Inject()(graphQL: GraphQL,
     case Success(queryAst: Document) => Executor.execute(
       schema = graphQL.Schema,
       queryAst = queryAst,
-      userContext = (),
       variables = variables.getOrElse(Json.obj()),
       exceptionHandler = exceptionHandler,
       queryReducers = List(
@@ -107,12 +103,4 @@ class AppController @Inject()(graphQL: GraphQL,
     */
   def parseVariables(variables: String): JsObject = if (variables.trim.isEmpty || variables.trim == "null") Json.obj()
   else Json.parse(variables).as[JsObject]
-
-  lazy val exceptionHandler = ExceptionHandler {
-    case (_, error@TooComplexQueryError) => HandledException(error.getMessage)
-    case (_, error@MaxQueryDepthReachedError(_)) => HandledException(error.getMessage)
-  }
-
-  case object TooComplexQueryError extends Exception("Query is too expensive.")
-
 }

@@ -27,10 +27,7 @@ class ItemSchema @Inject()(itemResolver: ItemResolver) {
     Field(
       name = "items",
       fieldType = ListType(Item),
-      resolve = {
-        sangriaContext =>
-          itemResolver.items
-      }
+      resolve = _ => itemResolver.items
     ),
     Field(
       name = "findItem",
@@ -38,7 +35,7 @@ class ItemSchema @Inject()(itemResolver: ItemResolver) {
       arguments = List(
         Argument("id", LongType)
       ),
-      resolve = {
+      resolve =
         sangriaContext =>
           itemResolver.findItem(sangriaContext.args.arg[Long]("id"))
     )
@@ -54,12 +51,10 @@ class ItemSchema @Inject()(itemResolver: ItemResolver) {
       arguments = List(
         Argument("description", StringType)
       ),
-      resolve = {
-        sangriaContext =>
-          itemResolver.addItem(
-            sangriaContext.args.arg[String]("description")
-          )
-      }
+      resolve = sangriaContext =>
+        itemResolver.addItem(
+          sangriaContext.args.arg[String]("description")
+        )
     )
   )
 }
