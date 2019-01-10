@@ -40,18 +40,18 @@ class PostResolver @Inject()(postRepository: PostRepository,
   def findPost(id: Long): Future[Option[Post]] = postRepository.find(id)
 
   /**
-    * Allows to add and save new Item instance.
+    * Updates existing post.
     *
-    * @param description it's one of the field of the Item entity
-    * @return created Item instance
+    * @param post post for update
+    * @return updated Post instance
     */
-  def addItem(description: String): Future[Item] = itemRepository.create(Item(1, description))
+  def updatePost(post: Post): Future[Post] = postRepository.update(post)
 
   /**
-    * Finds Item by id.
+    * Deletes existing post.
     *
-    * @param id an id of the Item
-    * @return found Item instance
+    * @param id a post id
+    * @return boolean result
     */
-  def findItem(id: Long): Future[Option[Item]] = itemRepository.find(id)
+  def deletePost(id: Long): Future[Boolean] = postRepository.delete(id)
 }
