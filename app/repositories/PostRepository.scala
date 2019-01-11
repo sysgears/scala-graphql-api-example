@@ -28,12 +28,12 @@ class PostRepository @Inject()(implicit val executionContext: ExecutionContext) 
 
   /** @inheritdoc */
   override def find(id: Long): Future[Option[Post]] = Future.successful {
-      postCollection.find(_.id.contains(id))
+    postCollection.find(_.id.contains(id))
   }
 
   /** @inheritdoc */
   override def findAll(): Future[List[Post]] = Future.successful {
-      postCollection.toList
+    postCollection.toList
   }
 
   /** @inheritdoc */
@@ -41,12 +41,13 @@ class PostRepository @Inject()(implicit val executionContext: ExecutionContext) 
     post.id match {
       case Some(id) =>
         find(id).flatMap {
-        case Some(foundPost) =>
-          delete(id)
-          postCollection += post
-          Future.successful(post)
-        case _ => Future.failed(new Exception(s"Not found post with id=$id"))
-      }
+          case Some(_) =>
+            val foundPostIndex = postCollection.indexWhere(_.id == post.id)
+            postCollection(foundPostIndex) = post
+            Future.successful(post)
+          case _ => Future.failed(new Exception(s"Not found post with id=$id"))
+        }
+      case _ => Future.failed(new Exception(s"Post's id wasn't provided."))
     }
   }
 
