@@ -40,16 +40,6 @@ class PostSchema @Inject()(postResolver: PostResolver) {
       resolve =
         sangriaContext =>
           postResolver.findPost(sangriaContext.args.arg[Long]("id"))
-    ),
-    Field(
-      name = "deletePost",
-      fieldType = BooleanType,
-      arguments = List(
-        Argument("id", LongType)
-      ),
-      resolve =
-        sangriaContext =>
-          postResolver.deletePost(sangriaContext.args.arg[Long]("id"))
     )
   )
 
@@ -84,6 +74,16 @@ class PostSchema @Inject()(postResolver: PostResolver) {
           sangriaContext.args.arg[String]("title"),
           sangriaContext.args.arg[String]("content")
         )
+    ),
+    Field(
+      name = "deletePost",
+      fieldType = BooleanType,
+      arguments = List(
+        Argument("id", LongType)
+      ),
+      resolve =
+        sangriaContext =>
+          postResolver.deletePost(sangriaContext.args.arg[Long]("id"))
     )
   )
 }
