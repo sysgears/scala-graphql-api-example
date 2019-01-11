@@ -29,7 +29,7 @@ class PostResolver @Inject()(postRepository: PostRepository,
     * @param content post content
     * @return created Post instance
     */
-  def addPost(title: String, content: String): Future[Post] = postRepository.create(Post(None, title, content))
+  def addPost(title: String, content: String): Future[Post] = postRepository.create(Post(title = title, content = content))
 
   /**
     * Finds Post by id.
@@ -42,10 +42,12 @@ class PostResolver @Inject()(postRepository: PostRepository,
   /**
     * Updates existing post.
     *
-    * @param post post for update
+    * @param id a post id
+    * @param title post title
+    * @param content post content
     * @return updated Post instance
     */
-  def updatePost(post: Post): Future[Post] = postRepository.update(post)
+  def updatePost(id: Long, title: String, content: String): Future[Post] = postRepository.update(Post(Some(id), title, content))
 
   /**
     * Deletes existing post.

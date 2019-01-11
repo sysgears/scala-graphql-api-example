@@ -80,10 +80,9 @@ class PostSchema @Inject()(postResolver: PostResolver) {
       ),
       resolve = sangriaContext =>
         postResolver.updatePost(
-          Post(Some(sangriaContext.args.arg[Long]("id")),
-            sangriaContext.args.arg[String]("title"),
-            sangriaContext.args.arg[String]("content")
-          )
+          sangriaContext.args.arg[Long]("id"),
+          sangriaContext.args.arg[String]("title"),
+          sangriaContext.args.arg[String]("content")
         )
     )
   )
