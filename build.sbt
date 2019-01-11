@@ -16,6 +16,4 @@ libraryDependencies ++= Seq(
   "org.sangria-graphql" %% "sangria" % "1.4.1"
 )
 
-unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
-
       
