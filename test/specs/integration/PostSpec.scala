@@ -4,6 +4,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, POST, contentAsString, contentType, status}
 import play.mvc.Http
 import specs.TestHelper
+import spray.json._
 
 class PostSpec extends TestHelper {
 
@@ -23,13 +24,25 @@ class PostSpec extends TestHelper {
     "returns all posts" in {
       val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(posts)
 
-      val result = appController.graphqlBody.apply(request)
+      val result = contentAsString(appController.graphqlBody.apply(request))
 
-      contentAsString(result) must include("data")
+      result must include("data")
+      result mustNot include("errors")
+
+      result.parseJson.asJsObject.fields("data")
+      .asJsObject.fields("posts")
     }
 
     "finds post by id" in {
+      val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(findPost)
 
+      val result = contentAsString(appController.graphqlBody.apply(request))
+
+      result must include("data")
+      result mustNot include("errors")
+
+      result.parseJson.asJsObject.fields("data")
+      .asJsObject.fields("findPost")
     }
   }
 
@@ -37,17 +50,37 @@ class PostSpec extends TestHelper {
     "add new post" in {
       val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(addPost)
 
-      val result = appController.graphqlBody.apply(request)
+      val result = contentAsString(appController.graphqlBody.apply(request))
 
-      contentAsString(result) must include("data")
+      result must include("data")
+      result mustNot include("errors")
+
+      result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("addPost")
     }
 
     "updates an existing post" in {
+      val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(updatePost)
 
+      val result = contentAsString(appController.graphqlBody.apply(request))
+
+      result must include("data")
+      result mustNot include("errors")
+
+      result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("updatePost")
     }
 
     "deletes the post" in {
+      val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(deletePost)
 
+      val result = contentAsString(appController.graphqlBody.apply(request))
+
+      result must include("data")
+      result mustNot include("errors")
+
+      result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("deletePost") mustEqual true
     }
   }
 }
