@@ -1,6 +1,6 @@
 package repositories
 
-import com.google.inject.Inject
+import com.google.inject.{Inject, Singleton}
 import models.Post
 
 import scala.collection.mutable
@@ -11,11 +11,12 @@ import scala.concurrent.{ExecutionContext, Future}
   *
   * @param executionContext execute program logic asynchronously, typically but not necessarily on a thread pool
   */
+@Singleton
 class PostRepository @Inject()(implicit val executionContext: ExecutionContext) extends Repository[Post] {
 
   val postCollection: mutable.ArrayBuffer[Post] = mutable.ArrayBuffer.empty[Post]
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def create(post: Post): Future[Post] = Future.successful {
     synchronized {
       val newPost = post.copy(
@@ -26,17 +27,17 @@ class PostRepository @Inject()(implicit val executionContext: ExecutionContext) 
     }
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def find(id: Long): Future[Option[Post]] = Future.successful {
     postCollection.find(_.id.contains(id))
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def findAll(): Future[List[Post]] = Future.successful {
     postCollection.toList
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def update(post: Post): Future[Post] = synchronized {
     post.id match {
       case Some(id) =>
@@ -51,7 +52,7 @@ class PostRepository @Inject()(implicit val executionContext: ExecutionContext) 
     }
   }
 
-  /** @inheritdoc */
+  /** @inheritdoc*/
   override def delete(id: Long): Future[Boolean] = Future.successful {
     synchronized {
       postCollection.indexWhere(_.id.contains(id)) match {
