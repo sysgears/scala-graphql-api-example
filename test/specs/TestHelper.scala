@@ -15,7 +15,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 
-trait TestHelper extends PlaySpec with GuiceOneAppPerSuite with Injecting with BeforeAndAfter with PreparedInput{
+trait TestHelper extends PlaySpec with GuiceOneAppPerSuite with Injecting with BeforeAndAfter with PreparedInput {
 
   implicit lazy val executionContext: ExecutionContext = inject[ExecutionContext]
   implicit lazy val postResolver: PostResolver = inject[PostResolver]
@@ -24,11 +24,10 @@ trait TestHelper extends PlaySpec with GuiceOneAppPerSuite with Injecting with B
   lazy val appController: AppController = inject[AppController]
 
   before {
-    postResolver.addPost(title = "First post", content = "Some content")
-    postResolver.addPost(title = "Second post", content = "Some content")
-    postResolver.addPost(title = "Third post", content = "Some content")
+    await(postResolver.addPost(title = "First post", content = "First content"))
+    await(postResolver.addPost(title = "Second post", content = "Second content"))
+    await(postResolver.addPost(title = "Third post", content = "Third content"))
   }
 
   def await[T](asyncFunc: => Future[T]): T = Await.result[T](asyncFunc, Duration.Inf)
-
 }
