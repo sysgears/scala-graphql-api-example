@@ -1,5 +1,6 @@
 package specs.integration
 
+import models.Post
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{GET, POST, contentAsString, contentType, status}
 import play.mvc.Http
@@ -7,6 +8,8 @@ import specs.TestHelper
 import spray.json._
 
 class PostSpec extends TestHelper {
+
+  import models.PostJsonProtocol._
 
   "GraphiQL route" must {
 
@@ -29,8 +32,10 @@ class PostSpec extends TestHelper {
       result must include("data")
       result mustNot include("errors")
 
-      result.parseJson.asJsObject.fields("data")
-      .asJsObject.fields("posts")
+      val postList = result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("posts").convertTo[List[Post]]
+
+      postList.isEmpty mustEqual false
     }
 
     "finds post by id" in {
@@ -41,8 +46,13 @@ class PostSpec extends TestHelper {
       result must include("data")
       result mustNot include("errors")
 
-      result.parseJson.asJsObject.fields("data")
-      .asJsObject.fields("findPost")
+      val foundPost = result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("findPost").asJsObject.convertTo[Post]
+
+      foundPost.id mustBe defined
+      foundPost.id.get mustEqual 1
+      foundPost.title mustEqual "First post"
+      foundPost.content mustEqual "First content"
     }
   }
 
@@ -55,8 +65,12 @@ class PostSpec extends TestHelper {
       result must include("data")
       result mustNot include("errors")
 
-      result.parseJson.asJsObject.fields("data")
-        .asJsObject.fields("addPost")
+      val newPost = result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("addPost").asJsObject.convertTo[Post]
+
+      newPost.id mustBe defined
+      newPost.title mustEqual "New post"
+      newPost.content mustEqual "I created a post"
     }
 
     "updates an existing post" in {
@@ -67,8 +81,12 @@ class PostSpec extends TestHelper {
       result must include("data")
       result mustNot include("errors")
 
-      result.parseJson.asJsObject.fields("data")
-        .asJsObject.fields("updatePost")
+      val updatedPost = result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("updatePost").asJsObject.convertTo[Post]
+
+      updatedPost.id mustBe defined
+      updatedPost.title mustEqual "New title"
+      updatedPost.content mustEqual "X#X#X#X#X#"
     }
 
     "deletes the post" in {
@@ -79,8 +97,10 @@ class PostSpec extends TestHelper {
       result must include("data")
       result mustNot include("errors")
 
-      result.parseJson.asJsObject.fields("data")
-        .asJsObject.fields("deletePost") mustEqual true
+      val isDelete = result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("deletePost").convertTo[Boolean]
+
+      isDelete mustEqual true
     }
   }
 }
