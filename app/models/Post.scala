@@ -11,6 +11,9 @@ import spray.json.{DefaultJsonProtocol, JsonFormat}
   */
 case class Post(id: Option[Long] = None, title: String, content: String)
 
+/**
+  * Converts Post in JSON format to Post object
+  */
 object PostJsonProtocol extends DefaultJsonProtocol {
   implicit val postJsonProtocolFormat: JsonFormat[Post] = jsonFormat3(Post)
 }
