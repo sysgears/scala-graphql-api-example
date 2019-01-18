@@ -1,65 +1,50 @@
 package repositories
 
-import com.google.inject.Inject
 import models.Post
 
-import scala.collection.mutable
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 /**
-  * Implementation that's based on mutable synchronized collection.
-  *
-  * @param executionContext execute program logic asynchronously, typically but not necessarily on a thread pool
+  * Simple CRUD repository which provides basic operations.
   */
-class PostRepository @Inject()(implicit val executionContext: ExecutionContext) extends Repository[Post] {
+trait PostRepository {
 
-  val postCollection: mutable.ArrayBuffer[Post] = mutable.ArrayBuffer.empty[Post]
+  /**
+    * Creates instance.
+    *
+    * @param post a new instance
+    * @return created instance
+    */
+  def create(post: Post): Future[Post]
 
-  /** @inheritdoc */
-  override def create(post: Post): Future[Post] = Future.successful {
-    synchronized {
-      val newPost = post.copy(
-        id = Some(postCollection.size + 1L)
-      )
-      postCollection += newPost
-      newPost
-    }
-  }
+  /**
+    * Returns instance by id.
+    *
+    * @param id an id of the instance
+    * @return found instance
+    */
+  def find(id: Long): Future[Option[Post]]
 
-  /** @inheritdoc */
-  override def find(id: Long): Future[Option[Post]] = Future.successful {
-    postCollection.find(_.id.contains(id))
-  }
+  /**
+    * Returns a list of instances.
+    *
+    * @return list of instance
+    */
+  def findAll(): Future[List[Post]]
 
-  /** @inheritdoc */
-  override def findAll(): Future[List[Post]] = Future.successful {
-    postCollection.toList
-  }
+  /**
+    * Updates existing instance.
+    *
+    * @param post new instance
+    * @return updated instance
+    */
+  def update(post: Post): Future[Post]
 
-  /** @inheritdoc */
-  override def update(post: Post): Future[Post] = synchronized {
-    post.id match {
-      case Some(id) =>
-        find(id).flatMap {
-          case Some(_) =>
-            val foundPostIndex = postCollection.indexWhere(_.id == post.id)
-            postCollection(foundPostIndex) = post
-            Future.successful(post)
-          case _ => Future.failed(new Exception(s"Not found post with id=$id"))
-        }
-      case _ => Future.failed(new Exception(s"Post's id wasn't provided."))
-    }
-  }
-
-  /** @inheritdoc */
-  override def delete(id: Long): Future[Boolean] = Future.successful {
-    synchronized {
-      postCollection.indexWhere(_.id.contains(id)) match {
-        case -1 => false
-        case postIndex =>
-          postCollection.remove(postIndex)
-          true
-      }
-    }
-  }
+  /**
+    * Delete existing instance by id.
+    *
+    * @param id an id of some instance
+    * @return true/false result of deleting
+    */
+  def delete(id: Long): Future[Boolean]
 }
