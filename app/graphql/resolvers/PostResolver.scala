@@ -9,7 +9,7 @@ import scala.concurrent.{ExecutionContext, Future}
 /**
   * A resolver class that contains all resolver methods for the Post model.
   *
-  * @param postRepository an repository which provides basic operations for Post entity
+  * @param postRepository   an repository which provides basic operations for Post entity
   * @param executionContext execute program logic asynchronously, typically but not necessarily on a thread pool
   */
 class PostResolver @Inject()(postRepository: PostRepository,
@@ -25,7 +25,7 @@ class PostResolver @Inject()(postRepository: PostRepository,
   /**
     * Add and save new Post instance.
     *
-    * @param title post title
+    * @param title   post title
     * @param content post content
     * @return created Post instance
     */
@@ -42,8 +42,8 @@ class PostResolver @Inject()(postRepository: PostRepository,
   /**
     * Updates existing post.
     *
-    * @param id a post id
-    * @param title post title
+    * @param id      a post id
+    * @param title   post title
     * @param content post content
     * @return updated Post instance
     */

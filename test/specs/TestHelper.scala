@@ -10,7 +10,7 @@ import org.scalatest.BeforeAndAfter
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
-import repositories.PostRepository
+import repositories.PostPostRepositoryImpl
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
@@ -39,7 +39,7 @@ trait TestHelper extends PlaySpec with GuiceOneAppPerSuite with Injecting with B
   /**
     * Injects instance of PostRepository.
     */
-  lazy val postRepo: PostRepository = inject[PostRepository]
+  lazy val postRepo: PostPostRepositoryImpl = inject[PostPostRepositoryImpl]
 
   /**
     * Injects instance of AppController.
