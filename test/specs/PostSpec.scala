@@ -2,8 +2,7 @@ package specs
 
 import models.Post
 import play.api.test.FakeRequest
-import play.api.test.Helpers.{GET, POST, contentAsString, contentType, status}
-import play.mvc.Http
+import play.api.test.Helpers.{POST, contentAsString}
 import spray.json._
 
 /**
@@ -14,26 +13,13 @@ class PostSpec extends TestHelper {
   /**
     * Imports implicit for conversion Post in JSON format to Post object.
     */
+
   import models.PostJsonProtocol._
 
-  "GraphiQL route" must {
-
-    /**
-      * Checks that when executing a GET request on '/' return page with GraphiQL.
-      */
-    "return 200 OK with the GraphiQL page" in {
-      val request = FakeRequest(GET, "/")
-      val home = appController.graphiql.apply(request)
-
-      status(home) mustBe Http.Status.OK
-      contentType(home) mustBe Some("text/html")
-      contentAsString(home) must include("GraphiQL")
-    }
-  }
   /**
     * Contains test specs for queries.
     */
-  "Queries" must {
+  "Post queries" must {
     "returns all posts" in {
       val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(posts)
 
@@ -69,7 +55,7 @@ class PostSpec extends TestHelper {
   /**
     * Contains test specs for mutations.
     */
-  "Mutations" must {
+  "Post mutations" must {
     "add new post" in {
       val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(addPost)
 
