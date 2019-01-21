@@ -1,10 +1,10 @@
 package modules
 
 import com.google.inject._
-import repositories.{PostPostRepositoryImpl, PostRepository}
+import repositories.{PostRepositoryImpl, PostRepository}
 
 class PostBindings extends AbstractModule {
   override def configure(): Unit = {
-    bind(classOf[PostRepository]).to(classOf[PostPostRepositoryImpl]).in(Scopes.SINGLETON)
+    bind(classOf[PostRepository]).to(classOf[PostRepositoryImpl]).in(Scopes.SINGLETON)
   }
 }

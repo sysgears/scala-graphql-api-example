@@ -12,7 +12,7 @@ import scala.concurrent.{ExecutionContext, Future}
   * @param executionContext execute program logic asynchronously, typically but not necessarily on a thread pool
   */
 @Singleton
-class PostPostRepositoryImpl @Inject()(implicit val executionContext: ExecutionContext) extends PostRepository {
+class PostRepositoryImpl @Inject()(implicit val executionContext: ExecutionContext) extends PostRepository {
 
   val postCollection: mutable.ArrayBuffer[Post] = mutable.ArrayBuffer.empty[Post]
 
