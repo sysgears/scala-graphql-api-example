@@ -17,11 +17,18 @@ import scala.concurrent.{ExecutionContext, Future}
 class PostRepositoryImpl @Inject()(val database: AppDatabase,
                                    implicit val executionContext: ExecutionContext) extends PostRepository {
 
+  /**
+    * Specific database
+    */
   val db = database.db
 
+  /**
+    * Specific database profile
+    */
   val profile = database.profile
 
   import profile.api._
+
 
   def postQuery = TableQuery[Post.Table]
 
@@ -74,6 +81,9 @@ class PostRepositoryImpl @Inject()(val database: AppDatabase,
     Actions.delete(id)
   }
 
+  /**
+    * Provides implementation for CRUD operations with 'Post' entity.
+    */
   object Actions {
 
     def create(post: Post): DBIO[Post] =
