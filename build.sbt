@@ -11,9 +11,12 @@ resolvers += "Atlassian Maven Repository" at "https://maven.atlassian.com/conten
 scalaVersion := "2.12.6"
 
 libraryDependencies ++= Seq(
+  evolutions,
   guice,
   "org.sangria-graphql" %% "sangria-play-json" % "1.0.4",
   "org.sangria-graphql" %% "sangria" % "1.4.1",
+
+  "com.h2database" % "h2" % "1.4.197",
 
   "com.typesafe.play" %% "play-slick" % "3.0.3",
   "com.typesafe.play" %% "play-slick-evolutions" % "3.0.3",

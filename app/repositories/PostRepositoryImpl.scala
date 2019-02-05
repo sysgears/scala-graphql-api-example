@@ -79,8 +79,14 @@ class PostRepositoryImpl @Inject()(val database: AppDatabase,
     def create(post: Post): DBIO[Post] =
       for {
         maybePost <- if (post.id.isEmpty) DBIO.successful(None) else find(post.id.get)
-        post <- maybePost.fold[DBIO[Post]](postQuery returning postQuery += post) {
-          _ => DBIO.failed(AlreadyExists(s"Already exists post with id = ${post.id}"))
+        maybePostId <- maybePost match {
+          case Some(value) => DBIO.failed(AlreadyExists(s"Already exists post with id = ${post.id}"))
+          case _ => postQuery returning postQuery.map(_.id) += post
+        }
+        maybePost <- find(maybePostId)
+        post <- maybePost match {
+          case Some(value)=> DBIO.successful(value)
+          case _ => DBIO.failed(AmbigousResult(s"Failed to save post [post=$post]"))
         }
       } yield post
 
@@ -96,16 +102,18 @@ class PostRepositoryImpl @Inject()(val database: AppDatabase,
     } yield posts.toList
 
     def update(post: Post): DBIO[Post] = for {
-      count <- postQuery.filter(_.id === post.id.get).update(post)
-    _ <- count match {
-      case 0 => DBIO.failed(NotFound(s"Not found post with id=${post.id.get}"))
-      case _ => DBIO.successful(())
-    }
-  } yield post
+      maybeId <- if (post.id.isDefined) DBIO.successful(post.id.get) else DBIO.failed(NotFound(s"Not found 'id' in the [post=$post]"))
+      count <- postQuery.filter(_.id === maybeId).update(post)
+      _ <- count match {
+        case 0 => DBIO.failed(NotFound(s"Not found post with id=${post.id.get}"))
+        case _ => DBIO.successful(())
+      }
+    } yield post
 
     def delete(id: Long): DBIO[Boolean] = for {
       maybeDelete <- postQuery.filter(_.id === id).delete
       isDelete = if (maybeDelete == 1) true else false
-      } yield isDelete
-    }
+    } yield isDelete
+  }
+
 }
