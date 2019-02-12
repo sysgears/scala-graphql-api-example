@@ -47,8 +47,8 @@ class PostSpec extends TestHelper {
 
       foundPost.id mustBe defined
       foundPost.id.get mustEqual 1
-      foundPost.title mustEqual "First post"
-      foundPost.content mustEqual "First content"
+      foundPost.title mustEqual "Post #[1]"
+      foundPost.content mustEqual "First post content"
     }
   }
 
@@ -100,6 +100,31 @@ class PostSpec extends TestHelper {
         .asJsObject.fields("deletePost").convertTo[Boolean]
 
       isDelete mustEqual true
+    }
+
+    "return 'false' when trying to delete a non-existent post" in {
+      val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(tryDeleteNonExistingPost)
+
+      val result = contentAsString(appController.graphqlBody.apply(request))
+
+      result must include("data")
+      result mustNot include("errors")
+
+      val isDelete = result.parseJson.asJsObject.fields("data")
+        .asJsObject.fields("deletePost").convertTo[Boolean]
+
+      isDelete mustEqual false
+    }
+
+    "return error when trying to update a non-existent post" in {
+      val request = FakeRequest(POST, "/graphql").withHeaders(("Content-Type", "application/json")).withBody(tryUpdateNonExistingPost)
+
+      val result = contentAsString(appController.graphqlBody.apply(request))
+
+      result must include("errors")
+
+      result mustEqual "{\"data\":null,\"errors\":[{" +
+        "\"message\":\"Not found post with id=20\",\"path\":[\"updatePost\"],\"locations\":[{\"line\":1,\"column\":12}]}]}"
     }
   }
 }
