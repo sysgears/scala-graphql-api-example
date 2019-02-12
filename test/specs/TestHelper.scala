@@ -5,11 +5,12 @@ import java.util.concurrent.TimeUnit
 import akka.stream.Materializer
 import akka.util.Timeout
 import controllers.AppController
-import models.Post
+
 import org.scalatest.BeforeAndAfter
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
+
 import repositories.PostRepositoryImpl
 
 import scala.concurrent.duration.Duration
@@ -45,22 +46,6 @@ trait TestHelper extends PlaySpec with GuiceOneAppPerSuite with Injecting with B
     * Injects instance of AppController.
     */
   lazy val appController: AppController = inject[AppController]
-
-  /**
-    * Performed before each test.
-    */
-  before {
-    await(postRepo.create(Post(title = "First post", content = "First content")))
-    await(postRepo.create(Post(title = "Second post", content = "Second content")))
-    await(postRepo.create(Post(title = "Third post", content = "Third content")))
-  }
-
-  /**
-    * Performed after each test.
-    */
-  after {
-    postRepo.postCollection.clear()
-  }
 
   /**
     * Awaits for the given async function to complete and returns its result
