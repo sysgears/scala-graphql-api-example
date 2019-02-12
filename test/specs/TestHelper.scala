@@ -6,7 +6,6 @@ import akka.stream.Materializer
 import akka.util.Timeout
 import controllers.AppController
 
-import org.scalatest.BeforeAndAfter
 import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Injecting
@@ -20,7 +19,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
   * Prepares tools for easy writing and execution of tests.
   * Injecting dependencies, filling the database with initial data, defines timeouts for requests.
   */
-trait TestHelper extends PlaySpec with GuiceOneAppPerSuite with Injecting with BeforeAndAfter with PreparedInput {
+trait TestHelper extends PlaySpec with GuiceOneAppPerSuite with Injecting with PreparedInput {
 
   /**
     * Implicit definition the execution context for asynchronous operations.
