@@ -8,6 +8,7 @@ Run an application:
 
 `sbt run`
 
+To start the application, you must be installed locally Java and SBT. 
 The application uses H2 database in-memory. Database initialization is provided by Play evolutions. After launch, the application will be available at `localhost:9000`. When you first start you will see a message about the need to execute the sql script. Click `Apply this script now!`
 
 **Sources**

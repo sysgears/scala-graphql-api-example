@@ -3,7 +3,7 @@ package errors
 import sangria.execution.UserFacingError
 
 /**
-  * Represents an exception object indicating that something is already exists.
+  * Represents an exception object indicating that we received ambiguous result.
   *
   * @param msg an exception message to show
   */
